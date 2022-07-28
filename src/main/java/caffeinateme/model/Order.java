@@ -6,7 +6,7 @@ public class Order {
     private final int quantity;
     private final String product;
     private final Customer customer;
-    private final OrderStatus status;
+    private OrderStatus status;
 
     public Order(int quantity, String product, Customer customer) {
         this(quantity,product, customer, OrderStatus.Normal);
@@ -40,6 +40,10 @@ public class Order {
 
     public static OrderBuilder of(int quantity, String product) {
         return new OrderBuilder(quantity, product);
+    }
+
+    public void updateStatusTo(OrderStatus status) {
+        this.status = status;
     }
 
     public static class OrderBuilder {
