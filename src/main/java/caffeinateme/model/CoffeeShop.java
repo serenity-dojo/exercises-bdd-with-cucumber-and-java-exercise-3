@@ -1,12 +1,19 @@
 package caffeinateme.model;
 
+import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class CoffeeShop {
 
     private Queue<Order> orders = new LinkedList<>();
+    private final ProductCatalog productCatalog;
 
-    public void placeOrder(Order order, Float distanceInMetres) {
+    public CoffeeShop(ProductCatalog productCatalog) {
+        this.productCatalog = productCatalog;
+    }
+
+    public void placeOrder(Order order, float distanceInMetres) {
         if (distanceInMetres <= 200) {
             order = order.withStatus(OrderStatus.Urgent);
         }
@@ -22,4 +29,49 @@ public class CoffeeShop {
                 .filter( order -> order.getCustomer().equals(customer))
                 .findFirst();
     }
+
+    public void setCustomerETA(Customer customer, int etaInMinutes) {
+        getOrderFor(customer).ifPresent(
+                order -> {
+                    if (etaInMinutes < 5) {
+                        order.updateStatusTo(OrderStatus.Urgent);
+                    } else if (etaInMinutes > 10) {
+                        order.updateStatusTo(OrderStatus.Normal);
+                    } else {
+                        order.updateStatusTo(OrderStatus.High);
+                    }
+                }
+        );
+    }
+
+    public Receipt getReceiptFor(Customer customer) {
+        List<Order> customerOrders = orders.stream()
+                .filter( order -> order.getCustomer().equals(customer))
+                .collect(Collectors.toList());
+
+        double subTotal = customerOrders.stream()
+                .mapToDouble(this::subtotalFor)
+                .sum();
+
+        List<ReceiptLineItem> lineItems = customerOrders.stream()
+                .map(order -> new ReceiptLineItem(order.getProduct(), order.getQuantity(), subtotalFor(order)))
+                .collect(Collectors.toList());
+
+        double serviceFee = subTotal * 5 / 100;
+        double total = subTotal + serviceFee;
+        return new Receipt(roundedTo2DecimalPlaces(subTotal),
+                roundedTo2DecimalPlaces(serviceFee),
+                roundedTo2DecimalPlaces(total),
+                lineItems);
+    }
+
+    private double roundedTo2DecimalPlaces(double value) {
+        return new BigDecimal(Double.toString(value)).setScale(2, BigDecimal.ROUND_HALF_UP)
+                .doubleValue();
+    }
+
+    private double subtotalFor(Order order) {
+        return productCatalog.priceOf(order.getProduct()) * order.getQuantity();
+    }
+
 }

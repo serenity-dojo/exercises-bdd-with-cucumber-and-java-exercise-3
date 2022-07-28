@@ -4,7 +4,7 @@ import java.util.Objects;
 
 public class Customer {
     private String name;
-    private Float distanceInMetres = 10000.0f;
+    private Integer distanceInMetres = 10000;
 
     public Customer(String name) {
         this.name = name;
@@ -18,7 +18,7 @@ public class Customer {
         return new Customer(name);
     }
 
-    public void setDistanceFromShop(Float distanceInMetres) {
+    public void setDistanceFromShop(Integer distanceInMetres) {
         this.distanceInMetres = distanceInMetres;
     }
 
@@ -28,9 +28,9 @@ public class Customer {
 
     public static class CustomerOrderBuilder {
         private Order order;
-        private final Float distanceInMetres;
+        private final Integer distanceInMetres;
 
-        public CustomerOrderBuilder(Order order, Float distanceInMetres) {
+        public CustomerOrderBuilder(Order order, Integer distanceInMetres) {
             this.order = order;
             this.distanceInMetres = distanceInMetres;
         }
