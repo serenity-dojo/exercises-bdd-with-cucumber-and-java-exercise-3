@@ -105,6 +105,4 @@ public class OrderCoffeeSteps {
     public void theReceiptShouldContainTheLineItems(List<ReceiptLineItem> expectedLineItems) throws Throwable {
         assertThat(receipt.getLineItems()).containsExactlyElementsOf(expectedLineItems);
     }
-
-
 }
